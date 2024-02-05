@@ -20,7 +20,13 @@ from datetime import datetime, timedelta
 # auth_token |
 #------
 class auth_token_list_view(viewsets.ModelViewSet):
-    permission_classes = [default_authenticated_user]
+    # permission_classes = [default_authenticated_user]
+    def get_permissions(self):
+    # check the action and return the permission class accordingly
+        if self.action == 'create':
+            return []
+        return [default_authenticated_user(), ]
+        # return []
     queryset = AuthToken.objects.all()
     serializer_class = AuthTokenSerializer
     
@@ -29,11 +35,11 @@ class auth_token_list_view(viewsets.ModelViewSet):
     # search_fields = ["name", "registration",'created_at']
 
     def list(self, request,*args, **kwargs):
-        if not request.user.has_perm('cheque.view_authtoken'):
-            response = Response(
-                    {'detail':('User do not has permission')},
-                    status=status.HTTP_403_FORBIDDEN)
-            return response
+        # if not request.user.has_perm('cheque.view_authtoken'):
+        #     response = Response(
+        #             {'detail':('User do not has permission')},
+        #             status=status.HTTP_403_FORBIDDEN)
+        #     return response
         
         instance = super().list(request, *args, **kwargs)
 
@@ -52,6 +58,7 @@ class auth_token_list_view(viewsets.ModelViewSet):
         # dt_str = tmp.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         # request.data['valid_till'] = dt_str
         try:
+            print('is create here',request.data)
             instance = super().create(request, *args, **kwargs)
             return instance
         except Exception as e:
